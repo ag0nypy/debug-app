@@ -59,7 +59,7 @@ Run tests in Xcode with:
 
 1. Clone the repo:
 ```bash
-git clone https://github.com/<your-username>/DebugApp.git
+git clone https://github.com/umaidshahid/debug-app
 cd DebugApp
 Open the Xcode project/workspace (e.g., DebugApp.xcodeproj) in Xcode 15+.
 Select a Simulator or a connected device.
