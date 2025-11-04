@@ -1,7 +1,7 @@
 # 🔧 Debug App — Internal iOS Debug Menu (MVP)
 
 A minimal, modular iOS app (Swift + SwiftUI) demonstrating an **internal developer debug menu** for QA and engineering workflows.  
-Designed as a quick, job-relevant portfolio piece showing how to build internal tools, shared UI, and testable components.
+Designed as a quick portfolio piece showing how to build internal tools, shared UI, and testable components.
 
 ---
 
