@@ -1,0 +1,63 @@
+name: iOS Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build Simulator app
+        run: >-
+          xcodebuild
+          -project DebugApp.xcodeproj
+          -scheme DebugApp
+          -configuration Debug
+          -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath "$RUNNER_TEMP/DerivedData"
+          CODE_SIGNING_ALLOWED=NO
+          build
+
+      - name: Build unsigned iOS app
+        run: >-
+          xcodebuild
+          -project DebugApp.xcodeproj
+          -scheme DebugApp
+          -configuration Release
+          -sdk iphoneos
+          -destination 'generic/platform=iOS'
+          -derivedDataPath "$RUNNER_TEMP/DeviceBuild"
+          CODE_SIGNING_ALLOWED=NO
+          build
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          ditto "$RUNNER_TEMP/DeviceBuild/Build/Products/Release-iphoneos/DebugApp.app" \
+            "$RUNNER_TEMP/ipa/Payload/DebugApp.app"
+          cd "$RUNNER_TEMP/ipa"
+          /usr/bin/zip -qry "$RUNNER_TEMP/DebugApp-unsigned.ipa" Payload
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: DebugApp-iOS-build
+          path: |
+            ${{ runner.temp }}/DerivedData/Build/Products/Debug-iphonesimulator/DebugApp.app
+            ${{ runner.temp }}/DebugApp-unsigned.ipa
+          if-no-files-found: error
